@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.sonu.customer</groupId>
-    <artifactId>spring-boot-customer-service</artifactId>
+    <artifactId>microservice-customer-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-boot-customer-service</name>
+    <name>microservice-customer-service</name>
     <description>Customer Service</description>
     <properties>
         <java.version>17</java.version>
@@ -25,10 +25,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -85,6 +81,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>microservice-customer-service</finalName>
     </build>
 
 </project>

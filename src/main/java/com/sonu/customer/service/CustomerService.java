@@ -6,6 +6,7 @@ import com.sonu.customer.feign.FeignClientProduct;
 import com.sonu.customer.model.*;
 import com.sonu.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,17 @@ public class CustomerService {
     @Autowired
     FeignClientProduct feignClientProduct;
 
+    @Autowired
+    private Environment env;
+
+
     public CustomerResponse getCustomer(Integer id) {
         CustomerResponse response;
         Optional<Customer> byId = customerRepository.findById(id);
         if (byId.isPresent()) {
-            ResponseEntity<ProductResponse[]> responseEntity = restTemplate.getForEntity("http://product-service/product/get-products/" + id, ProductResponse[].class);
+            String myProperty = env.getProperty("product-service.url");
+            String url = myProperty + "/product/get-products/";
+            ResponseEntity<ProductResponse[]> responseEntity = restTemplate.getForEntity(url + id, ProductResponse[].class);
             if (responseEntity.getStatusCode().is2xxSuccessful() && null != responseEntity.getBody()) {
                 List<ProductResponse> products = Arrays.asList(responseEntity.getBody());
                 Customer customer = byId.get();
@@ -49,7 +56,9 @@ public class CustomerService {
         if (null != saveCustomer.getCustomerId()) {
             request.getProducts().forEach(product -> product.setCustomerId(request.getCustomerId()));
             HttpEntity<List<Product>> productEntity = new HttpEntity<>(request.getProducts());
-            ResponseEntity<ProductResponse[]> responseEntity = restTemplate.postForEntity("http://product-service/product/add-products", productEntity, ProductResponse[].class);
+            String myProperty = env.getProperty("product-service.url");
+            String url = myProperty + "/product/add-products";
+            ResponseEntity<ProductResponse[]> responseEntity = restTemplate.postForEntity(url, productEntity, ProductResponse[].class);
             if (responseEntity.getStatusCode().is2xxSuccessful() && null != responseEntity.getBody()) {
                 List<ProductResponse> products = Arrays.asList(responseEntity.getBody());
                 response = new CustomerResponse(saveCustomer.getCustomerId(), saveCustomer.getCustomerName(), products);

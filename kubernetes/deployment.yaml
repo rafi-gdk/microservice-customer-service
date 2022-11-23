@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
+metadata:
+  name: customer-deployment
+  labels:
+    app: customerlabel
+spec:
+  replicas: 2 # Number of replicas that will be created for this deployment
+  selector:
+    matchLabels:
+      app: customerlabel
+  template:
+    metadata:
+      labels:
+        app: customerlabel
+    spec:
+      containers:
+        - name: customer-service
+          image: customer-service:latest # Image that will be used to containers in the cluster
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PRODUCT_SERVICE_URI
+              value: http://product-deployment:1003 #metadata.name
+          ports:
+            - containerPort: 1002 # The port that the container is running on in the cluster

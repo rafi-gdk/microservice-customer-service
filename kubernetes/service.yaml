@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service # Kubernetes resource kind we are creating
+metadata:
+  name: customer-deployment
+spec:
+  selector:
+      app: customerlabel
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 1002
+      targetPort: 1002
