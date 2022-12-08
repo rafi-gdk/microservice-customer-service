@@ -6,6 +6,9 @@ import com.sonu.customer.service.CustomerService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
@@ -20,22 +23,31 @@ public class CustomerController {
     @Autowired
     CustomerService customerService;
 
-    @GetMapping("/get-customer/{id}")
+    @Autowired
+    KafkaTemplate<String, String> template;
+
+    @GetMapping(value = "/get-customer/{id}")
     public CustomerResponse getCustomer(@PathVariable("id") Integer id) {
         logger.info("id-->" + id);
         return customerService.getCustomer(id);
     }
 
-    @PostMapping("/add-customer")
+    @PostMapping(value = "/add-customer")
     public CustomerResponse addCustomer(@RequestBody CustomerRequest customer) {
         logger.info("customer-->" + customer);
         return customerService.addCustomer(customer);
     }
 
-    @PostMapping("/feign-add-customer")
+    @PostMapping(value = "/feign-add-customer")
     public CustomerResponse addFeignCustomer(@RequestBody CustomerRequest customer) {
         logger.info("customer-->" + customer);
         return customerService.addFeignCustomer(customer);
+    }
+
+    @PostMapping(value = "/kafka-add-customer")
+    public String addKafkaCustomer(@RequestBody CustomerRequest customer) {
+        ListenableFuture<SendResult<String, String>> future = template.send("sonu", customer.toString());
+        return "Success";
     }
 
     @GetMapping(value = "/test-resilience4j")

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class CustomerService {
             if (responseEntity.getStatusCode().is2xxSuccessful() && null != responseEntity.getBody()) {
                 List<ProductResponse> products = Arrays.asList(responseEntity.getBody());
                 Customer customer = byId.get();
-                response = new CustomerResponse(customer.getCustomerId(), customer.getCustomerName(), products);
+                response = new CustomerResponse(customer.getCustomerId(), customer.getCustomerName(), customer.getDateTime(), products);
                 return response;
             }
         }
@@ -51,7 +52,7 @@ public class CustomerService {
 
     public CustomerResponse addCustomer(CustomerRequest request) {
         CustomerResponse response;
-        Customer customer = new Customer(request.getCustomerId(), request.getCustomerName());
+        Customer customer = new Customer(request.getCustomerId(), request.getCustomerName(), LocalDateTime.now());
         Customer saveCustomer = customerRepository.save(customer);
         if (null != saveCustomer.getCustomerId()) {
             request.getProducts().forEach(product -> product.setCustomerId(request.getCustomerId()));
@@ -61,7 +62,7 @@ public class CustomerService {
             ResponseEntity<ProductResponse[]> responseEntity = restTemplate.postForEntity(url, productEntity, ProductResponse[].class);
             if (responseEntity.getStatusCode().is2xxSuccessful() && null != responseEntity.getBody()) {
                 List<ProductResponse> products = Arrays.asList(responseEntity.getBody());
-                response = new CustomerResponse(saveCustomer.getCustomerId(), saveCustomer.getCustomerName(), products);
+                response = new CustomerResponse(saveCustomer.getCustomerId(), saveCustomer.getCustomerName(), saveCustomer.getDateTime(), products);
                 return response;
             }
         }
@@ -70,13 +71,13 @@ public class CustomerService {
 
     public CustomerResponse addFeignCustomer(CustomerRequest request) {
         CustomerResponse response;
-        Customer customer = new Customer(request.getCustomerId(), request.getCustomerName());
+        Customer customer = new Customer(request.getCustomerId(), request.getCustomerName(), LocalDateTime.now());
         Customer saveCustomer = customerRepository.save(customer);
         if (null != saveCustomer.getCustomerId()) {
             request.getProducts().forEach(product -> product.setCustomerId(request.getCustomerId()));
             List<ProductResponse> productResponses = feignClientProduct.addProducts(request.getProducts());
             if (!productResponses.isEmpty()) {
-                response = new CustomerResponse(saveCustomer.getCustomerId(), saveCustomer.getCustomerName(), productResponses);
+                response = new CustomerResponse(saveCustomer.getCustomerId(), saveCustomer.getCustomerName(), saveCustomer.getDateTime(), productResponses);
                 return response;
             }
         }

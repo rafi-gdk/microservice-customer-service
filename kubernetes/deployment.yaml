@@ -5,7 +5,7 @@ metadata:
   labels:
     app: customerlabel
 spec:
-  replicas: 2 # Number of replicas that will be created for this deployment
+  replicas: 1 # Number of replicas that will be created for this deployment
   selector:
     matchLabels:
       app: customerlabel
@@ -20,6 +20,6 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: PRODUCT_SERVICE_URI
-              value: http://product-deployment:1003 #metadata.name
+              value: http://product-deployment:9003 #metadata.name
           ports:
-            - containerPort: 1002 # The port that the container is running on in the cluster
+            - containerPort: 9002 # The port that the container is running on in the cluster
